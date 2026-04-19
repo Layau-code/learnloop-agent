@@ -141,6 +141,7 @@ Already in place:
 - database schema baseline
 - workflow run models
 - settings and workflow run endpoints
+- materials endpoints and ingest service skeleton
 - frontend navigation shell
 
 Next priorities:

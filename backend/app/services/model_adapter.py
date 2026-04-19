@@ -48,3 +48,21 @@ class ModelAdapter:
             latency_ms=latency_ms,
         )
 
+    def embed_texts(self, texts: list[str], model_name: str | None = None) -> list[list[float] | None]:
+        selected_model = model_name or settings.openai_embedding_model
+        if self._client is None:
+            return [None for _ in texts]
+
+        start = perf_counter()
+        response = self._client.embeddings.create(model=selected_model, input=texts)
+        latency_ms = int((perf_counter() - start) * 1000)
+        trace_event(
+            "model.embedding",
+            {
+                "model_name": selected_model,
+                "latency_ms": latency_ms,
+                "input_count": len(texts),
+            },
+        )
+        return [item.embedding for item in response.data]
+
