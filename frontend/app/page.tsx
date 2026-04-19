@@ -1,15 +1,15 @@
 const checkpoints = [
   {
-    title: "T01-T03",
-    description: "Monorepo, Docker Compose, FastAPI and Next.js shells are scaffolded."
+    title: "Browser First",
+    description: "The project is being built as a browser-based workflow product, not a mobile app."
   },
   {
-    title: "T04-T07",
-    description: "Alembic, core models, repositories, workflow run and event infrastructure are in place."
+    title: "Ingest Loop",
+    description: "You can already create a material, parse it, chunk it and generate a distill draft."
   },
   {
-    title: "T08-T09",
-    description: "Model adapter and observability baselines are ready for the next implementation passes."
+    title: "Next Step",
+    description: "The current focus is wiring draft approval and knowledge write-back into visible web pages."
   }
 ];
 
@@ -17,10 +17,10 @@ export default function HomePage() {
   return (
     <section className="page">
       <div className="page-header">
-        <p className="eyebrow">Execution Pack</p>
-        <h2>Project Overview</h2>
+        <p className="eyebrow">Overview</p>
+        <h2>网页版开发进度</h2>
         <p className="lede">
-          The repository has moved from planning-only into an implementation-ready scaffold.
+          这个仓库现在已经从“只有文档”进入了“浏览器里能逐步看到主流程长出来”的阶段。
         </p>
       </div>
 
@@ -36,4 +36,3 @@ export default function HomePage() {
     </section>
   );
 }
-

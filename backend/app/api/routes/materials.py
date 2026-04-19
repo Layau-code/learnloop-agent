@@ -26,7 +26,7 @@ def _get_or_create_default_user_id(db: Session) -> str:
 
 @router.get("", response_model=list[MaterialRead])
 def list_materials(db: Session = Depends(get_db)) -> list[MaterialRead]:
-    materials = MaterialRepository(db).list(limit=100)
+    materials = MaterialRepository(db).list_recent(limit=100)
     return [MaterialRead.model_validate(material) for material in materials]
 
 

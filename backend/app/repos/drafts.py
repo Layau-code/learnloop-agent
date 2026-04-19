@@ -17,3 +17,18 @@ class DistillDraftRepository(BaseRepository[DistillDraft]):
             .order_by(DistillDraft.created_at.asc())
         )
 
+    def list_filtered(
+        self,
+        status: str | None = None,
+        source_type: str | None = None,
+        source_ref_id: str | None = None,
+        limit: int = 100,
+    ) -> list[DistillDraft]:
+        query = self.db.query(DistillDraft)
+        if status:
+            query = query.filter(DistillDraft.status == status)
+        if source_type:
+            query = query.filter(DistillDraft.source_type == source_type)
+        if source_ref_id:
+            query = query.filter(DistillDraft.source_ref_id == source_ref_id)
+        return list(query.order_by(DistillDraft.updated_at.desc()).limit(limit))

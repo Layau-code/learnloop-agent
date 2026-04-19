@@ -10,6 +10,9 @@ class MaterialRepository(BaseRepository[Material]):
     def __init__(self, db: Session) -> None:
         super().__init__(db, Material)
 
+    def list_recent(self, limit: int = 100) -> list[Material]:
+        return list(self.db.query(Material).order_by(Material.imported_at.desc()).limit(limit))
+
 
 class MaterialChunkRepository(BaseRepository[MaterialChunk]):
     def __init__(self, db: Session) -> None:

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     api_host: str = Field(default="0.0.0.0", alias="API_HOST")
     api_port: int = Field(default=8000, alias="API_PORT")
+    cors_origins: str = Field(default="http://localhost:3000", alias="CORS_ORIGINS")
 
     database_url: str = Field(
         default="postgresql+psycopg://myagent:myagent@localhost:5432/myagent",
@@ -36,4 +37,3 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
-

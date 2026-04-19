@@ -38,8 +38,20 @@ The repository currently contains the implementation scaffold for the first engi
 - workflow run infrastructure
 - model adapter skeleton
 - observability baseline
+- browser-based study workbench for manual notes and URL ingestion
+- pending distill draft approval flow
+- knowledge base listing and search API/page
 
 This means the project has moved beyond planning and into implementation, but the main product workflows are still being built.
+
+## Current web flow
+
+The browser-based MVP can now demonstrate a small but real loop:
+
+1. create a study material from the `Study` page
+2. run ingest and generate a distill draft
+3. approve the draft into the knowledge base
+4. browse the result in the `Knowledge` page
 
 ## Planned V1 capabilities
 
@@ -119,6 +131,11 @@ cp .env.example .env
 
 2. Set `OPENAI_API_KEY` in `.env`
 
+   If you keep the default local ports, the web frontend and API will already align through:
+
+   - `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1`
+   - `CORS_ORIGINS=http://localhost:3000`
+
 3. Start the stack:
 
 ```bash
@@ -146,11 +163,10 @@ Already in place:
 
 Next priorities:
 
-1. materials API and parser pipeline
-2. ingest workflow wiring
-3. knowledge base APIs
-4. study QA workflow
-5. reflection and planning workflow
+1. richer material ingestion support for files and PDF parsing
+2. study QA workflow with current-material context
+3. reflection and planning workflow
+4. improved approval UX and retrieval quality
 
 ## Roadmap
 

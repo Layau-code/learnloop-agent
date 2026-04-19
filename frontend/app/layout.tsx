@@ -6,8 +6,8 @@ import Link from "next/link";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "MyAgent",
-  description: "Learning knowledge distillation agent scaffold"
+  title: "LearnLoop Agent",
+  description: "Browser-based learning workflow agent for material ingestion and knowledge distillation"
 };
 
 const navItems = [
@@ -26,8 +26,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="app-shell">
             <aside className="sidebar">
               <div>
-                <p className="eyebrow">MYAGENT</p>
-                <h1>Learning OS Scaffold</h1>
+                <p className="eyebrow">LEARNLOOP</p>
+                <h1>Learning Workflow Web</h1>
               </div>
               <nav className="nav">
                 {navItems.map((item) => (
@@ -44,4 +44,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
