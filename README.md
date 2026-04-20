@@ -1,6 +1,6 @@
 # LearnLoop Agent
 
-Local-first learning workflow agent that turns study materials and conversations into a personal knowledge base with context-aware QA, reflection, and adaptive planning.
+Single-user, local-first learning workflow agent that turns study materials and conversations into a personal knowledge base with context-aware QA, reflection, and adaptive planning.
 
 ## Why this project
 
@@ -14,6 +14,8 @@ Most learning tools help you collect content or chat with a model, but they do n
 
 LearnLoop Agent is designed to make that loop explicit and durable.
 
+This project is intended to be cloned and run locally by one user at a time. It is not being positioned as a hosted multi-user SaaS.
+
 ## Core direction
 
 The current version is scoped around a single-user, local-first learning workflow:
@@ -23,6 +25,17 @@ The current version is scoped around a single-user, local-first learning workflo
 3. ask questions with current-study context
 4. distill useful outputs into reusable knowledge
 5. generate daily reflection and next-step plans
+
+Product assumptions in the current MVP:
+
+- one primary user profile
+- local Docker deployment
+- bring-your-own model API key
+- browser UI defaults to Simplified Chinese, with an English toggle available in the UI and persisted in the current browser
+
+Implementation caveat:
+
+- the current runtime uses a single default profile and no auth layer yet
 
 ## What is implemented today
 
@@ -41,6 +54,7 @@ The repository currently contains the implementation scaffold for the first engi
 - browser-based study workbench for manual notes and URL ingestion
 - pending distill draft approval flow
 - knowledge base listing and search API/page
+- browser-based study QA for the currently selected material using chunk-level evidence and inline chunk references
 
 This means the project has moved beyond planning and into implementation, but the main product workflows are still being built.
 
@@ -52,12 +66,20 @@ The browser-based MVP can now demonstrate a small but real loop:
 2. run ingest and generate a distill draft
 3. approve the draft into the knowledge base
 4. browse the result in the `Knowledge` page
+5. ask a question against the currently selected study material in the `Study` page
+
+Current study QA boundary:
+
+- selected material only
+- chunk-level evidence selection
+- inline chunk references on assistant messages
+- no SSE, no cross-material retrieval, and no formal citations table yet
 
 ## Planned V1 capabilities
 
 - material ingestion for `Markdown / TXT / PDF / URL / manual notes`
 - searchable knowledge base
-- context-aware study QA with citations
+- context-aware study QA with stronger retrieval and richer citations
 - distill draft approval and knowledge write-back
 - daily reflection
 - daily / weekly learning plan generation
@@ -82,6 +104,7 @@ The browser-based MVP can now demonstrate a small but real loop:
   - study workbench
   - reflection and planning
   - settings
+- a lightweight client-side locale layer for Simplified Chinese and English
 
 ### Agent layer
 
@@ -119,24 +142,34 @@ frontend/
 
 - Docker
 - Docker Compose
-- OpenAI API key
+- Optional OpenAI API key
 
 ### Start locally
 
-1. Copy the environment template:
+The recommended way to use this project is:
+
+1. clone the repository locally
+2. configure your own model API key if needed
+3. run the stack on your machine
+
+This repo is not designed around a shared hosted deployment model.
+
+4. Copy the environment template:
 
 ```bash
 cp .env.example .env
 ```
 
-2. Set `OPENAI_API_KEY` in `.env`
+5. Optionally set `OPENAI_API_KEY` in `.env`
 
    If you keep the default local ports, the web frontend and API will already align through:
 
    - `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1`
    - `CORS_ORIGINS=http://localhost:3000`
 
-3. Start the stack:
+   Without an OpenAI key, the current MVP still runs with deterministic fallback behavior for study QA and draft generation, while model-backed generation and embeddings stay disabled.
+
+6. Start the stack:
 
 ```bash
 docker compose up --build
@@ -159,12 +192,12 @@ Already in place:
 - workflow run models
 - settings and workflow run endpoints
 - materials endpoints and ingest service skeleton
-- frontend navigation shell
+- browser-based ingest, draft approval, knowledge browsing, and selected-material study QA
 
 Next priorities:
 
 1. richer material ingestion support for files and PDF parsing
-2. study QA workflow with current-material context
+2. richer study QA with stronger retrieval, richer citations, and multi-turn UX
 3. reflection and planning workflow
 4. improved approval UX and retrieval quality
 

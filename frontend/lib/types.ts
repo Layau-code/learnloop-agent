@@ -79,3 +79,33 @@ export type KnowledgeItem = {
   created_at: string;
   updated_at: string;
 };
+
+export type ChatThread = {
+  id: string;
+  user_id: string;
+  title: string;
+  active_material_id: string | null;
+  active_topic: string | null;
+  status: string;
+  last_active_at: string;
+  created_at: string;
+};
+
+export type ChatMessage = {
+  id: string;
+  thread_id: string;
+  role: "user" | "assistant";
+  message_type: string;
+  content_md: string;
+  citations_json: Array<Record<string, unknown>>;
+  retrieval_context_json: Record<string, unknown>;
+  model_name: string | null;
+  created_at: string;
+};
+
+export type StudyQaAskResponse = {
+  thread: ChatThread;
+  user_message: ChatMessage;
+  assistant_message: ChatMessage;
+  workflow_run_id: string;
+};

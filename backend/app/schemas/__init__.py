@@ -11,6 +11,7 @@ from app.schemas.workflow import (  # noqa: F401
     WorkflowRunCreate,
     WorkflowRunRead,
 )
+from app.schemas.chat import ChatMessageRead, ChatThreadRead, StudyQaAskRequest, StudyQaAskResponse
 from app.schemas.drafts import DraftApproveResponse, DraftRejectRequest, DistillDraftRead
 from app.schemas.knowledge import KnowledgeItemRead
 from app.schemas.materials import MaterialChunkRead, MaterialCreate, MaterialIngestResponse, MaterialRead
@@ -18,6 +19,8 @@ from app.schemas.settings import UserProfileRead, UserProfileUpdate
 from app.schemas.workflow import EventLogRead, WorkflowCheckpointRead, WorkflowRunCreate, WorkflowRunRead
 
 __all__ = [
+    "ChatMessageRead",
+    "ChatThreadRead",
     "DraftApproveResponse",
     "DraftRejectRequest",
     "DistillDraftRead",
@@ -27,6 +30,8 @@ __all__ = [
     "MaterialCreate",
     "MaterialIngestResponse",
     "MaterialRead",
+    "StudyQaAskRequest",
+    "StudyQaAskResponse",
     "UserProfileRead",
     "UserProfileUpdate",
     "WorkflowCheckpointRead",

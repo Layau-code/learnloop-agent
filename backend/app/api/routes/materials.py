@@ -5,23 +5,15 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_or_default_user_id
 from app.db.session import get_db
 from app.repos.materials import MaterialChunkRepository, MaterialRepository
-from app.repos.settings import UserProfileRepository
 from app.schemas.materials import MaterialChunkRead, MaterialCreate, MaterialIngestResponse, MaterialRead
 from app.services.material_ingest import MaterialIngestService
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-
-def _get_or_create_default_user_id(db: Session) -> str:
-    profiles = UserProfileRepository(db)
-    profile = profiles.get_default_profile()
-    if profile is None:
-        profile = profiles.create(display_name="default")
-    return profile.id
 
 
 @router.get("", response_model=list[MaterialRead])
@@ -31,8 +23,11 @@ def list_materials(db: Session = Depends(get_db)) -> list[MaterialRead]:
 
 
 @router.post("", response_model=MaterialIngestResponse, status_code=201)
-def create_material(payload: MaterialCreate, db: Session = Depends(get_db)) -> MaterialIngestResponse:
-    user_id = _get_or_create_default_user_id(db)
+def create_material(
+    payload: MaterialCreate,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_or_default_user_id),
+) -> MaterialIngestResponse:
     materials = MaterialRepository(db)
     material = materials.create(
         user_id=user_id,
