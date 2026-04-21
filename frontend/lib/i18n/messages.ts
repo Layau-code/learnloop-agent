@@ -7,6 +7,8 @@ export const messages = {
       title: "单用户学习工作流",
       subtitle: "本地 clone、自配模型 API、配置后可用",
       mode: "Single-user / Local-first",
+      skipToContent: "跳到主要内容",
+      navigation: "主导航",
       nav: {
         overview: "总览",
         knowledge: "知识库",
@@ -142,6 +144,8 @@ export const messages = {
       title: "Single-user Learning Workflow",
       subtitle: "Clone locally and plug in your own model API",
       mode: "Single-user / Local-first",
+      skipToContent: "Skip to main content",
+      navigation: "Primary navigation",
       nav: {
         overview: "Overview",
         knowledge: "Knowledge",

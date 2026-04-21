@@ -26,6 +26,9 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        {app.skipToContent}
+      </a>
       <aside className="sidebar">
         <div className="sidebar-header">
           <div>
@@ -41,7 +44,7 @@ export function AppShell({ children }: AppShellProps) {
           <LocaleSwitcher locale={locale} onSelect={setLocale} />
         </div>
 
-        <nav className="nav">
+        <nav className="nav" aria-label={app.navigation}>
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const label = app.nav[item.key];
@@ -53,7 +56,9 @@ export function AppShell({ children }: AppShellProps) {
           })}
         </nav>
       </aside>
-      <main className="main">{children}</main>
+      <main id="main-content" className="main">
+        {children}
+      </main>
     </div>
   );
 }

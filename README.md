@@ -55,6 +55,7 @@ The repository currently contains the implementation scaffold for the first engi
 - pending distill draft approval flow
 - knowledge base listing and search API/page
 - browser-based study QA for the currently selected material using chunk-level evidence and inline chunk references
+- simplified responsive web shell with Simplified Chinese as the default language and an English toggle
 
 This means the project has moved beyond planning and into implementation, but the main product workflows are still being built.
 
@@ -105,6 +106,7 @@ Current study QA boundary:
   - reflection and planning
   - settings
 - a lightweight client-side locale layer for Simplified Chinese and English
+- a simplified responsive layout system for the single-user web workspace
 
 ### Agent layer
 

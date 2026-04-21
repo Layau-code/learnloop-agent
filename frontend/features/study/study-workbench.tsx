@@ -153,22 +153,26 @@ export function StudyWorkbench() {
   });
 
   const askQuestionMutation = useMutation({
-    mutationFn: () =>
-      apiPost<StudyQaAskResponse, { material_id: string; question: string; thread_id: string | null }>(
+    mutationFn: () => {
+      const materialId = selectedMaterial!.id;
+      return apiPost<StudyQaAskResponse, { material_id: string; question: string; thread_id: string | null }>(
         "/chat/ask",
         {
-          material_id: selectedMaterial!.id,
+          material_id: materialId,
           question: question.trim(),
           thread_id: effectiveThreadId
         }
-      ),
+      ).then((response) => ({ response, materialId }));
+    },
     onSuccess: async (result) => {
       setFeedbackMessage(copy.qaSuccess);
       setQuestion("");
-      setActiveThreadId(result.thread.id);
+      if (selectedMaterial?.id === result.materialId) {
+        setActiveThreadId(result.response.thread.id);
+      }
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: studyQueryKeys.chatThreads(selectedMaterial?.id) }),
-        queryClient.invalidateQueries({ queryKey: studyQueryKeys.chatMessages(result.thread.id) })
+        queryClient.invalidateQueries({ queryKey: studyQueryKeys.chatThreads(result.materialId) }),
+        queryClient.invalidateQueries({ queryKey: studyQueryKeys.chatMessages(result.response.thread.id) })
       ]);
     },
     onError: (error: Error) => {
