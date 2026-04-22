@@ -8,11 +8,9 @@ import { LocaleSwitcher } from "@/components/locale-switcher";
 import { useLocale } from "@/lib/i18n/provider";
 
 const navItems = [
-  { href: "/", key: "overview" },
-  { href: "/knowledge", key: "knowledge" },
   { href: "/study", key: "study" },
-  { href: "/reflection", key: "reflection" },
-  { href: "/settings", key: "settings" }
+  { href: "/knowledge", key: "knowledge" },
+  { href: "/reflection", key: "reflection" }
 ] as const;
 
 type AppShellProps = {
@@ -29,20 +27,10 @@ export function AppShell({ children }: AppShellProps) {
       <a className="skip-link" href="#main-content">
         {app.skipToContent}
       </a>
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <div>
-            <p className="eyebrow">{app.brand}</p>
-            <h1>{app.title}</h1>
-            <p className="sidebar-copy">{app.subtitle}</p>
-          </div>
-          <span className="pill">{app.mode}</span>
-        </div>
-
-        <div className="locale-switcher">
-          <span className="locale-label">{app.language}</span>
-          <LocaleSwitcher locale={locale} onSelect={setLocale} />
-        </div>
+      <header className="topbar">
+        <Link href="/study" className="brand-mark" aria-label={app.title}>
+          {app.brand}
+        </Link>
 
         <nav className="nav" aria-label={app.navigation}>
           {navItems.map((item) => {
@@ -55,7 +43,19 @@ export function AppShell({ children }: AppShellProps) {
             );
           })}
         </nav>
-      </aside>
+
+        <div className="topbar-actions">
+          <details className="menu-popover">
+            <summary>{app.language}</summary>
+            <div className="menu-panel">
+              <LocaleSwitcher locale={locale} onSelect={setLocale} />
+            </div>
+          </details>
+          <Link href="/settings" className="quiet-link">
+            {app.nav.settings}
+          </Link>
+        </div>
+      </header>
       <main id="main-content" className="main">
         {children}
       </main>

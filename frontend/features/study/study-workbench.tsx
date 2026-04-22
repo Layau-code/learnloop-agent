@@ -196,14 +196,13 @@ export function StudyWorkbench() {
   }
 
   return (
-    <section className="page">
-      <div className="page-header">
-        <p className="eyebrow">{copy.eyebrow}</p>
+    <section className="page study-page">
+      <div className="page-header minimal-header">
         <h2>{copy.title}</h2>
         <p className="lede">{copy.lede}</p>
       </div>
 
-      <div className="dashboard-grid">
+      <div className="workspace-grid">
         <article className="card card-tall">
           <div className="section-heading">
             <div>
@@ -290,7 +289,28 @@ export function StudyWorkbench() {
           </form>
         </article>
 
-        <article className="card">
+        <StudyQaPanel
+          selectedMaterial={selectedMaterial}
+          question={question}
+          onQuestionChange={setQuestion}
+          onSubmit={handleAskQuestion}
+          isSubmitting={askQuestionMutation.isPending}
+          effectiveThreadId={effectiveThreadId}
+          isLoadingMessages={threadsQuery.isLoading || messagesQuery.isLoading}
+          messages={messagesQuery.data ?? []}
+          formatTime={formatDateTime}
+          renderMarkdownPreview={renderMarkdownPreview}
+        />
+      </div>
+
+      <details className="quiet-disclosure">
+        <summary>
+          {copy.materialsTitle}
+          <span>
+            {materialsQuery.data?.length ?? 0} {copy.itemCount}
+          </span>
+        </summary>
+        <div className="disclosure-body">
           <div className="section-heading">
             <div>
               <p className="card-label">{copy.materialsLabel}</p>
@@ -325,50 +345,17 @@ export function StudyWorkbench() {
               <p className="muted">{copy.noMaterials}</p>
             ) : null}
           </div>
-        </article>
-      </div>
+        </div>
+      </details>
 
-      <div className="dashboard-grid">
-        <article className="card card-tall">
-          <div className="section-heading">
-            <div>
-              <p className="card-label">{copy.currentMaterialLabel}</p>
-              <h3>{copy.currentMaterialTitle}</h3>
-            </div>
-            {selectedMaterial ? <span className="pill">{selectedMaterial.language || copy.unknownLanguage}</span> : null}
-          </div>
-
-          {!selectedMaterial ? (
-            <p className="muted">{copy.currentMaterialEmpty}</p>
-          ) : (
-            <div className="stack-list">
-              <div className="detail-panel">
-                <h4>{selectedMaterial.title}</h4>
-                <p className="muted">
-                  {selectedMaterial.source_type} · {selectedMaterial.parse_status}
-                  {selectedMaterial.parse_error ? ` · ${selectedMaterial.parse_error}` : ""}
-                </p>
-                <p>{selectedMaterial.normalized_text || selectedMaterial.raw_text || copy.noBody}</p>
-              </div>
-
-              <div className="detail-panel">
-                <h4>{copy.chunksTitle}</h4>
-                {chunksQuery.isLoading ? <p className="muted">{copy.loadingChunks}</p> : null}
-                {chunksQuery.data?.map((chunk) => (
-                  <div key={chunk.id} className="chunk-card">
-                    <span className="pill subtle">#{chunk.chunk_index + 1}</span>
-                    <p>{chunk.content}</p>
-                  </div>
-                ))}
-                {!chunksQuery.isLoading && !chunksQuery.data?.length ? (
-                  <p className="muted">{copy.noChunks}</p>
-                ) : null}
-              </div>
-            </div>
-          )}
-        </article>
-
-        <article className="card card-tall">
+      <details className="quiet-disclosure" open={selectedMaterialDrafts.length > 0}>
+        <summary>
+          {copy.draftsTitle}
+          <span>
+            {selectedMaterialDrafts.length} {copy.draftCount}
+          </span>
+        </summary>
+        <div className="disclosure-body">
           <div className="section-heading">
             <div>
               <p className="card-label">{copy.draftsLabel}</p>
@@ -422,42 +409,53 @@ export function StudyWorkbench() {
               <p className="muted">{copy.noDrafts}</p>
             ) : null}
           </div>
-        </article>
-      </div>
+        </div>
+      </details>
 
-      <div className="dashboard-grid">
-        <StudyQaPanel
-          selectedMaterial={selectedMaterial}
-          question={question}
-          onQuestionChange={setQuestion}
-          onSubmit={handleAskQuestion}
-          isSubmitting={askQuestionMutation.isPending}
-          effectiveThreadId={effectiveThreadId}
-          isLoadingMessages={threadsQuery.isLoading || messagesQuery.isLoading}
-          messages={messagesQuery.data ?? []}
-          formatTime={formatDateTime}
-          renderMarkdownPreview={renderMarkdownPreview}
-        />
-
-        <article className="card">
+      <details className="quiet-disclosure">
+        <summary>
+          {copy.currentMaterialTitle}
+          {selectedMaterial ? <span>{selectedMaterial.title}</span> : null}
+        </summary>
+        <div className="disclosure-body">
           <div className="section-heading">
             <div>
-              <p className="card-label">{copy.scopeLabel}</p>
-              <h3>{copy.scopeTitle}</h3>
+              <p className="card-label">{copy.currentMaterialLabel}</p>
+              <h3>{copy.currentMaterialTitle}</h3>
             </div>
+            {selectedMaterial ? <span className="pill">{selectedMaterial.language || copy.unknownLanguage}</span> : null}
           </div>
-          <div className="stack-list">
-            <div className="detail-panel">
-              <h4>{copy.supported}</h4>
-              <p>{copy.supportedDescription}</p>
+
+          {!selectedMaterial ? (
+            <p className="muted">{copy.currentMaterialEmpty}</p>
+          ) : (
+            <div className="stack-list">
+              <div className="detail-panel">
+                <h4>{selectedMaterial.title}</h4>
+                <p className="muted">
+                  {selectedMaterial.source_type} · {selectedMaterial.parse_status}
+                  {selectedMaterial.parse_error ? ` · ${selectedMaterial.parse_error}` : ""}
+                </p>
+                <p>{selectedMaterial.normalized_text || selectedMaterial.raw_text || copy.noBody}</p>
+              </div>
+
+              <div className="detail-panel">
+                <h4>{copy.chunksTitle}</h4>
+                {chunksQuery.isLoading ? <p className="muted">{copy.loadingChunks}</p> : null}
+                {chunksQuery.data?.map((chunk) => (
+                  <div key={chunk.id} className="chunk-card">
+                    <span className="pill subtle">#{chunk.chunk_index + 1}</span>
+                    <p>{chunk.content}</p>
+                  </div>
+                ))}
+                {!chunksQuery.isLoading && !chunksQuery.data?.length ? (
+                  <p className="muted">{copy.noChunks}</p>
+                ) : null}
+              </div>
             </div>
-            <div className="detail-panel">
-              <h4>{copy.unsupported}</h4>
-              <p>{copy.unsupportedDescription}</p>
-            </div>
-          </div>
-        </article>
-      </div>
+          )}
+        </div>
+      </details>
     </section>
   );
 }

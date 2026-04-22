@@ -55,7 +55,7 @@ The repository currently contains the implementation scaffold for the first engi
 - pending distill draft approval flow
 - knowledge base listing and search API/page
 - browser-based study QA for the currently selected material using chunk-level evidence and inline chunk references
-- simplified responsive web shell with Simplified Chinese as the default language and an English toggle
+- minimal web shell that sends users directly into the study workflow, with Simplified Chinese as the default language and an English toggle
 
 This means the project has moved beyond planning and into implementation, but the main product workflows are still being built.
 
@@ -63,11 +63,12 @@ This means the project has moved beyond planning and into implementation, but th
 
 The browser-based MVP can now demonstrate a small but real loop:
 
-1. create a study material from the `Study` page
-2. run ingest and generate a distill draft
-3. approve the draft into the knowledge base
-4. browse the result in the `Knowledge` page
-5. ask a question against the currently selected study material in the `Study` page
+1. open the product and land directly in the `Study` workflow
+2. create a study material from the `Study` page
+3. run ingest and generate a distill draft
+4. approve the draft into the knowledge base
+5. browse the result in the `Knowledge` page
+6. ask a question against the currently selected study material in the `Study` page
 
 Current study QA boundary:
 
@@ -100,13 +101,12 @@ Current study QA boundary:
 
 - `Next.js + TypeScript`
 - app shell for:
-  - dashboard
   - knowledge base
   - study workbench
   - reflection and planning
   - settings
 - a lightweight client-side locale layer for Simplified Chinese and English
-- a simplified responsive layout system for the single-user web workspace
+- a minimal responsive layout that keeps secondary pages and settings out of the first-use path
 
 ### Agent layer
 
