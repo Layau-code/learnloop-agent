@@ -438,7 +438,6 @@ export function StudyWorkbench() {
         isLoadingMessages={threadsQuery.isLoading || messagesQuery.isLoading}
         messages={messagesQuery.data ?? []}
         formatTime={formatDateTime}
-        renderMarkdownPreview={renderMarkdownPreview}
       />
     </section>
   );

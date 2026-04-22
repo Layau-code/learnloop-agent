@@ -15,8 +15,32 @@ type StudyQaPanelProps = {
   isLoadingMessages: boolean;
   messages: ChatMessage[];
   formatTime: (value: string) => string;
-  renderMarkdownPreview: (content: string) => string[];
 };
+
+type MessageLine = {
+  text: string;
+  variant: "paragraph" | "bullet";
+};
+
+function getReadableMessageLines(content: string): MessageLine[] {
+  return content
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .flatMap((line): MessageLine[] => {
+      const headingText = line.replace(/^#{1,6}\s+/, "").trim();
+      if (/^(回答|依据片段|参考|引用|sources?)$/i.test(headingText)) {
+        return [];
+      }
+      if (/^-\s*chunk\s+\d+/i.test(line) || /^chunk\s+\d+/i.test(line)) {
+        return [];
+      }
+      if (line.startsWith("- ")) {
+        return [{ text: line.slice(2).trim(), variant: "bullet" }];
+      }
+      return [{ text: headingText, variant: "paragraph" }];
+    });
+}
 
 export function StudyQaPanel({
   selectedMaterial,
@@ -27,8 +51,7 @@ export function StudyQaPanel({
   effectiveThreadId,
   isLoadingMessages,
   messages,
-  formatTime,
-  renderMarkdownPreview
+  formatTime
 }: StudyQaPanelProps) {
   const { messages: appMessages } = useLocale();
   const copy = appMessages.study;
@@ -51,34 +74,47 @@ export function StudyQaPanel({
         <>
           <div className="chat-scroll">
             {isLoadingMessages ? <p className="muted">{copy.qaLoading}</p> : null}
-            {messages.map((message) => (
-              <div key={message.id} className="message-card">
-                <div className="message-meta">
-                  <span className={`pill ${message.role === "assistant" ? "" : "subtle"}`}>
-                    {message.role === "assistant" ? copy.agent : copy.you}
-                  </span>
-                  <span className="muted">{formatTime(message.created_at)}</span>
-                </div>
-                <div className="markdown-preview compact">
-                  {renderMarkdownPreview(message.content_md).map((line, index) => (
-                    <p key={`${message.id}-${index}`}>{line}</p>
-                  ))}
-                </div>
-                {message.citations_json.length ? (
-                  <div className="tag-row">
-                    {message.citations_json.map((citation, index) => {
-                      const chunkIndex =
-                        typeof citation.chunk_index === "number" ? citation.chunk_index + 1 : null;
-                      return (
-                        <span key={`${message.id}-citation-${index}`} className="pill subtle">
-                          {chunkIndex ? `${copy.chunk} ${chunkIndex}` : copy.chunk}
-                        </span>
-                      );
-                    })}
+            {messages.map((message) => {
+              const readableLines = getReadableMessageLines(message.content_md);
+              const isAssistant = message.role === "assistant";
+
+              return (
+                <div
+                  key={message.id}
+                  className={`message-card ${isAssistant ? "is-assistant" : "is-user"}`}
+                >
+                  <div className="message-meta">
+                    <span className="turn-role">{isAssistant ? copy.agent : copy.you}</span>
+                    <span className="turn-time">{formatTime(message.created_at)}</span>
                   </div>
-                ) : null}
-              </div>
-            ))}
+                  <div className="message-body">
+                    {readableLines.map((line, index) =>
+                      line.variant === "bullet" ? (
+                        <p key={`${message.id}-${index}`} className="message-bullet">
+                          {line.text}
+                        </p>
+                      ) : (
+                        <p key={`${message.id}-${index}`}>{line.text}</p>
+                      )
+                    )}
+                  </div>
+                  {message.citations_json.length ? (
+                    <div className="message-sources">
+                      <span>{copy.chunk}</span>
+                      {message.citations_json.map((citation, index) => {
+                        const chunkIndex =
+                          typeof citation.chunk_index === "number" ? citation.chunk_index + 1 : null;
+                        return (
+                          <span key={`${message.id}-citation-${index}`} className="source-chip">
+                            {chunkIndex ?? index + 1}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
             {!isLoadingMessages && !messages.length ? (
               <div className="empty-state compact">
                 <p>{copy.qaNoMessages}</p>
