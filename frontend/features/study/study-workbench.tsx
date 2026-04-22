@@ -196,108 +196,20 @@ export function StudyWorkbench() {
   }
 
   return (
-    <section className="page study-page">
-      <div className="page-header minimal-header">
-        <h2>{copy.title}</h2>
-        <p className="lede">{copy.lede}</p>
-      </div>
+    <section className="study-thread-page">
+      <header className="thread-page-header">
+        <div>
+          <h2>{selectedMaterial?.title ?? copy.title}</h2>
+          <p>{selectedMaterial?.topic_hint || copy.lede}</p>
+        </div>
 
-      <div className="codex-workspace">
-        <aside className="workspace-rail">
-          <article className="card card-tall">
-            <div className="section-heading">
-              <div>
-                <p className="card-label">{copy.createLabel}</p>
-                <h3>{copy.createTitle}</h3>
-              </div>
-              <span className="pill">{form.sourceType === "note" ? copy.note : copy.url}</span>
-            </div>
-
-            <form className="stack-form" onSubmit={handleSubmit}>
-              <label className="field">
-                <span>{copy.titleField}</span>
-                <input
-                  required
-                  value={form.title}
-                  onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-                  placeholder={copy.titlePlaceholder}
-                />
-              </label>
-
-              <label className="field">
-                <span>{copy.sourceType}</span>
-                <select
-                  value={form.sourceType}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      sourceType: event.target.value as SourceType,
-                      sourceUri: "",
-                      rawText: ""
-                    }))
-                  }
-                >
-                  <option value="note">{copy.note}</option>
-                  <option value="url">{copy.url}</option>
-                </select>
-              </label>
-
-              {form.sourceType === "note" ? (
-                <label className="field">
-                  <span>{copy.body}</span>
-                  <textarea
-                    required
-                    rows={10}
-                    value={form.rawText}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, rawText: event.target.value }))
-                    }
-                    placeholder={copy.bodyPlaceholder}
-                  />
-                </label>
-              ) : (
-                <label className="field">
-                  <span>{copy.urlField}</span>
-                  <input
-                    required
-                    type="url"
-                    value={form.sourceUri}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, sourceUri: event.target.value }))
-                    }
-                    placeholder={copy.urlPlaceholder}
-                  />
-                </label>
-              )}
-
-              <label className="field">
-                <span>{copy.topicHint}</span>
-                <input
-                  value={form.topicHint}
-                  onChange={(event) =>
-                    setForm((current) => ({ ...current, topicHint: event.target.value }))
-                  }
-                  placeholder={copy.topicHintPlaceholder}
-                />
-              </label>
-
-              <div className="action-row">
-                <button className="button-primary" type="submit" disabled={createMaterialMutation.isPending}>
-                  {createMaterialMutation.isPending ? copy.importing : copy.importAction}
-                </button>
-                {feedbackMessage ? <p className="status-text">{feedbackMessage}</p> : null}
-              </div>
-            </form>
-          </article>
-
-          <details className="quiet-disclosure" open>
+        <div className="thread-page-actions">
+          <details className="toolbar-menu">
             <summary>
               {copy.materialsTitle}
-              <span>
-                {materialsQuery.data?.length ?? 0} {copy.itemCount}
-              </span>
+              <span>{materialsQuery.data?.length ?? 0}</span>
             </summary>
-            <div className="disclosure-body">
+            <div className="toolbar-panel">
               <div className="stack-list">
                 {materialsQuery.isLoading ? <p className="muted">{copy.loadingMaterials}</p> : null}
                 {materialsQuery.data?.map((material) => (
@@ -321,23 +233,89 @@ export function StudyWorkbench() {
               </div>
             </div>
           </details>
-        </aside>
 
-        <div className="workspace-main">
-          <StudyQaPanel
-            selectedMaterial={selectedMaterial}
-            question={question}
-            onQuestionChange={setQuestion}
-            onSubmit={handleAskQuestion}
-            isSubmitting={askQuestionMutation.isPending}
-            effectiveThreadId={effectiveThreadId}
-            isLoadingMessages={threadsQuery.isLoading || messagesQuery.isLoading}
-            messages={messagesQuery.data ?? []}
-            formatTime={formatDateTime}
-            renderMarkdownPreview={renderMarkdownPreview}
-          />
+          <details className="toolbar-menu">
+            <summary>{copy.createTitle}</summary>
+            <div className="toolbar-panel wide">
+              <form className="stack-form" onSubmit={handleSubmit}>
+                <label className="field">
+                  <span>{copy.titleField}</span>
+                  <input
+                    required
+                    value={form.title}
+                    onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
+                    placeholder={copy.titlePlaceholder}
+                  />
+                </label>
 
-          <details className="quiet-disclosure" open={selectedMaterialDrafts.length > 0}>
+                <label className="field">
+                  <span>{copy.sourceType}</span>
+                  <select
+                    value={form.sourceType}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        sourceType: event.target.value as SourceType,
+                        sourceUri: "",
+                        rawText: ""
+                      }))
+                    }
+                  >
+                    <option value="note">{copy.note}</option>
+                    <option value="url">{copy.url}</option>
+                  </select>
+                </label>
+
+                {form.sourceType === "note" ? (
+                  <label className="field">
+                    <span>{copy.body}</span>
+                    <textarea
+                      required
+                      rows={8}
+                      value={form.rawText}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, rawText: event.target.value }))
+                      }
+                      placeholder={copy.bodyPlaceholder}
+                    />
+                  </label>
+                ) : (
+                  <label className="field">
+                    <span>{copy.urlField}</span>
+                    <input
+                      required
+                      type="url"
+                      value={form.sourceUri}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, sourceUri: event.target.value }))
+                      }
+                      placeholder={copy.urlPlaceholder}
+                    />
+                  </label>
+                )}
+
+                <label className="field">
+                  <span>{copy.topicHint}</span>
+                  <input
+                    value={form.topicHint}
+                    onChange={(event) =>
+                      setForm((current) => ({ ...current, topicHint: event.target.value }))
+                    }
+                    placeholder={copy.topicHintPlaceholder}
+                  />
+                </label>
+
+                <div className="action-row">
+                  <button className="button-primary" type="submit" disabled={createMaterialMutation.isPending}>
+                    {createMaterialMutation.isPending ? copy.importing : copy.importAction}
+                  </button>
+                  {feedbackMessage ? <p className="status-text">{feedbackMessage}</p> : null}
+                </div>
+              </form>
+            </div>
+          </details>
+
+          <details className="toolbar-menu">
             <summary>
               {copy.draftsTitle}
               <span>
@@ -401,7 +379,7 @@ export function StudyWorkbench() {
             </div>
           </details>
 
-          <details className="quiet-disclosure">
+          <details className="toolbar-menu">
             <summary>
               {copy.currentMaterialTitle}
               {selectedMaterial ? <span>{selectedMaterial.title}</span> : null}
@@ -448,7 +426,20 @@ export function StudyWorkbench() {
             </div>
           </details>
         </div>
-      </div>
+      </header>
+
+      <StudyQaPanel
+        selectedMaterial={selectedMaterial}
+        question={question}
+        onQuestionChange={setQuestion}
+        onSubmit={handleAskQuestion}
+        isSubmitting={askQuestionMutation.isPending}
+        effectiveThreadId={effectiveThreadId}
+        isLoadingMessages={threadsQuery.isLoading || messagesQuery.isLoading}
+        messages={messagesQuery.data ?? []}
+        formatTime={formatDateTime}
+        renderMarkdownPreview={renderMarkdownPreview}
+      />
     </section>
   );
 }
