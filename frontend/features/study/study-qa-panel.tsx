@@ -11,7 +11,6 @@ type StudyQaPanelProps = {
   onQuestionChange: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   isSubmitting: boolean;
-  effectiveThreadId: string | null;
   isLoadingMessages: boolean;
   messages: ChatMessage[];
   formatTime: (value: string) => string;
@@ -48,7 +47,6 @@ export function StudyQaPanel({
   onQuestionChange,
   onSubmit,
   isSubmitting,
-  effectiveThreadId,
   isLoadingMessages,
   messages,
   formatTime
@@ -135,7 +133,7 @@ export function StudyQaPanel({
               placeholder={copy.qaPlaceholder}
             />
             <div className="composer-actions">
-              {effectiveThreadId ? <span className="pill subtle">{copy.threadReady}</span> : <span />}
+              <span />
               <button className="button-primary" type="submit" disabled={isSubmitting || !question.trim()}>
                 {isSubmitting ? copy.answering : copy.ask}
               </button>

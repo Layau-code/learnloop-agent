@@ -434,7 +434,6 @@ export function StudyWorkbench() {
         onQuestionChange={setQuestion}
         onSubmit={handleAskQuestion}
         isSubmitting={askQuestionMutation.isPending}
-        effectiveThreadId={effectiveThreadId}
         isLoadingMessages={threadsQuery.isLoading || messagesQuery.isLoading}
         messages={messagesQuery.data ?? []}
         formatTime={formatDateTime}
