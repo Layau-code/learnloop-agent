@@ -38,6 +38,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  font-size: 14px;
   font-family: "Avenir Next", "Noto Sans CJK SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -85,7 +86,7 @@ button {
 .app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 224px minmax(0, 1fr);
 }
 
 .app-sidebar {
@@ -98,22 +99,22 @@ button {
   gap: 24px;
   border-right: 1px solid var(--border);
   background: #ededeb;
-  padding: 14px;
+  padding: 14px 12px;
 }
 
 .sidebar-top {
   display: grid;
-  gap: 18px;
+  gap: 22px;
 }
 
 .brand-mark {
   display: inline-flex;
   align-items: center;
-  min-height: 36px;
+  min-height: 30px;
   color: var(--text);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 900;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
 }
 
 .locale-switcher {
@@ -165,14 +166,20 @@ button {
 
 .nav {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   color: var(--text-muted);
-  padding: 9px 10px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 520;
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
@@ -183,10 +190,68 @@ button {
 
 .nav a.is-active {
   border-color: transparent;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.78);
   color: var(--text);
-  font-weight: 700;
+  font-weight: 650;
   box-shadow: var(--shadow-card);
+}
+
+.nav-glyph,
+.row-icon {
+  display: inline-flex;
+  width: 18px;
+  flex: 0 0 18px;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.sidebar-section {
+  display: grid;
+  gap: 8px;
+}
+
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.sidebar-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.sidebar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  border-radius: 10px;
+  color: var(--text-muted);
+  padding: 4px 7px;
+  font-size: 13px;
+}
+
+.sidebar-row:hover,
+.sidebar-row.is-current {
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--text);
+}
+
+.sidebar-empty {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 12px;
+  padding: 4px 7px;
 }
 
 .sidebar-actions {
@@ -194,15 +259,29 @@ button {
   gap: 8px;
 }
 
+.sidebar-shortcuts {
+  display: grid;
+  gap: 5px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.sidebar-shortcuts span {
+  min-height: 24px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.44);
+  padding: 4px 8px;
+}
+
 .quiet-link,
 .menu-popover summary {
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.58);
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 13px;
-  padding: 8px 10px;
+  font-size: 12px;
+  padding: 7px 9px;
 }
 
 .menu-popover {
@@ -238,7 +317,7 @@ button {
 .main {
   width: 100%;
   max-width: none;
-  padding: 20px;
+  padding: 18px;
 }
 
 .page {
@@ -873,8 +952,8 @@ button {
 
 .message-body p {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.76;
+  font-size: 14px;
+  line-height: 1.72;
 }
 
 .message-bullet {
