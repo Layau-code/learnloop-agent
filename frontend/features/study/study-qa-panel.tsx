@@ -34,8 +34,8 @@ export function StudyQaPanel({
   const copy = appMessages.study;
 
   return (
-    <article className="card card-tall">
-      <div className="section-heading">
+    <article className="chat-card">
+      <div className="chat-header">
         <div>
           <p className="card-label">{copy.qaLabel}</p>
           <h3>{copy.qaTitle}</h3>
@@ -44,30 +44,12 @@ export function StudyQaPanel({
       </div>
 
       {!selectedMaterial ? (
-        <p className="muted">{copy.qaEmpty}</p>
+        <div className="empty-state">
+          <p>{copy.qaEmpty}</p>
+        </div>
       ) : (
-        <div className="stack-list">
-          <form className="stack-form" onSubmit={onSubmit}>
-            <label className="field">
-              <span>{copy.qaQuestion}</span>
-              <textarea
-                required
-                rows={4}
-                value={question}
-                onChange={(event) => onQuestionChange(event.target.value)}
-                placeholder={copy.qaPlaceholder}
-              />
-            </label>
-            <div className="action-row">
-              <button className="button-primary" type="submit" disabled={isSubmitting || !question.trim()}>
-                {isSubmitting ? copy.answering : copy.ask}
-              </button>
-              {effectiveThreadId ? <span className="pill subtle">{copy.threadReady}</span> : null}
-            </div>
-          </form>
-
-          <div className="detail-panel">
-            <h4>{copy.qaHistoryTitle}</h4>
+        <>
+          <div className="chat-scroll">
             {isLoadingMessages ? <p className="muted">{copy.qaLoading}</p> : null}
             {messages.map((message) => (
               <div key={message.id} className="message-card">
@@ -98,10 +80,32 @@ export function StudyQaPanel({
               </div>
             ))}
             {!isLoadingMessages && !messages.length ? (
-              <p className="muted">{copy.qaNoMessages}</p>
+              <div className="empty-state compact">
+                <p>{copy.qaNoMessages}</p>
+              </div>
             ) : null}
           </div>
-        </div>
+
+          <form className="composer" onSubmit={onSubmit}>
+            <label className="sr-only" htmlFor="study-question">
+              {copy.qaQuestion}
+            </label>
+            <textarea
+              id="study-question"
+              required
+              rows={3}
+              value={question}
+              onChange={(event) => onQuestionChange(event.target.value)}
+              placeholder={copy.qaPlaceholder}
+            />
+            <div className="composer-actions">
+              {effectiveThreadId ? <span className="pill subtle">{copy.threadReady}</span> : <span />}
+              <button className="button-primary" type="submit" disabled={isSubmitting || !question.trim()}>
+                {isSubmitting ? copy.answering : copy.ask}
+              </button>
+            </div>
+          </form>
+        </>
       )}
     </article>
   );

@@ -55,7 +55,7 @@ The repository currently contains the implementation scaffold for the first engi
 - pending distill draft approval flow
 - knowledge base listing and search API/page
 - browser-based study QA for the currently selected material using chunk-level evidence and inline chunk references
-- minimal web shell that sends users directly into the study workflow, with Simplified Chinese as the default language and an English toggle
+- Codex-style web shell that sends users directly into the study workflow, with Simplified Chinese as the default language and an English toggle
 
 This means the project has moved beyond planning and into implementation, but the main product workflows are still being built.
 
@@ -106,7 +106,7 @@ Current study QA boundary:
   - reflection and planning
   - settings
 - a lightweight client-side locale layer for Simplified Chinese and English
-- a minimal responsive layout that keeps secondary pages and settings out of the first-use path
+- a Codex-inspired workspace layout with a compact sidebar, context rail, and central study conversation
 
 ### Agent layer
 

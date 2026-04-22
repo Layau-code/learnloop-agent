@@ -27,24 +27,26 @@ export function AppShell({ children }: AppShellProps) {
       <a className="skip-link" href="#main-content">
         {app.skipToContent}
       </a>
-      <header className="topbar">
-        <Link href="/study" className="brand-mark" aria-label={app.title}>
-          {app.brand}
-        </Link>
+      <aside className="app-sidebar">
+        <div className="sidebar-top">
+          <Link href="/study" className="brand-mark" aria-label={app.title}>
+            {app.brand}
+          </Link>
 
-        <nav className="nav" aria-label={app.navigation}>
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            const label = app.nav[item.key];
-            return (
-              <Link key={item.href} href={item.href} className={isActive ? "is-active" : undefined}>
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
+          <nav className="nav" aria-label={app.navigation}>
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              const label = app.nav[item.key];
+              return (
+                <Link key={item.href} href={item.href} className={isActive ? "is-active" : undefined}>
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
-        <div className="topbar-actions">
+        <div className="sidebar-actions">
           <details className="menu-popover">
             <summary>{app.language}</summary>
             <div className="menu-panel">
@@ -55,7 +57,7 @@ export function AppShell({ children }: AppShellProps) {
             {app.nav.settings}
           </Link>
         </div>
-      </header>
+      </aside>
       <main id="main-content" className="main">
         {children}
       </main>
