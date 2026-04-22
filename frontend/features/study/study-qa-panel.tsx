@@ -14,6 +14,9 @@ type StudyQaPanelProps = {
   isLoadingMessages: boolean;
   messages: ChatMessage[];
   formatTime: (value: string) => string;
+  onSaveAnswer: (messageId: string) => void;
+  savingAnswerMessageId: string | null;
+  savedAnswerMessageIds: string[];
 };
 
 type MessageLine = {
@@ -49,10 +52,14 @@ export function StudyQaPanel({
   isSubmitting,
   isLoadingMessages,
   messages,
-  formatTime
+  formatTime,
+  onSaveAnswer,
+  savingAnswerMessageId,
+  savedAnswerMessageIds
 }: StudyQaPanelProps) {
   const { messages: appMessages } = useLocale();
   const copy = appMessages.study;
+  const savedAnswerSet = new Set(savedAnswerMessageIds);
 
   return (
     <article className="chat-card">
@@ -75,6 +82,8 @@ export function StudyQaPanel({
             {messages.map((message) => {
               const readableLines = getReadableMessageLines(message.content_md);
               const isAssistant = message.role === "assistant";
+              const isSavedAnswer = savedAnswerSet.has(message.id);
+              const isSavingAnswer = savingAnswerMessageId === message.id;
 
               return (
                 <div
@@ -108,6 +117,22 @@ export function StudyQaPanel({
                           </span>
                         );
                       })}
+                    </div>
+                  ) : null}
+                  {isAssistant ? (
+                    <div className="message-actions">
+                      <button
+                        type="button"
+                        className="message-action"
+                        disabled={isSavingAnswer || isSavedAnswer}
+                        onClick={() => onSaveAnswer(message.id)}
+                      >
+                        {isSavedAnswer
+                          ? copy.answerDraftSavedShort
+                          : isSavingAnswer
+                            ? copy.savingAnswerDraft
+                            : copy.saveAnswerDraft}
+                      </button>
                     </div>
                   ) : null}
                 </div>

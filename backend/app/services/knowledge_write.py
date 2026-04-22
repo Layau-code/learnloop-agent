@@ -36,11 +36,19 @@ class KnowledgeWriteService:
 
         material = None
         topic = draft.structure_json.get("topic_hint")
+        material_id = None
         if draft.source_type == "material":
-            material = self.materials.get(draft.source_ref_id)
-            if material is None:
+            material_id = draft.source_ref_id
+        elif draft.source_type == "chat_message":
+            raw_material_id = draft.structure_json.get("material_id")
+            material_id = raw_material_id if isinstance(raw_material_id, str) else None
+
+        if material_id:
+            material = self.materials.get(material_id)
+            if material is None and draft.source_type == "material":
                 raise ValueError("Source material not found")
-            topic = topic or material.topic_hint
+            if material is not None:
+                topic = topic or material.topic_hint
 
         summary = self._extract_summary(draft.content_md)
         knowledge_item = self.knowledge.create(

@@ -39,6 +39,14 @@ class ChatMessageRepository(BaseRepository[ChatMessage]):
     def __init__(self, db: Session) -> None:
         super().__init__(db, ChatMessage)
 
+    def get_for_user(self, message_id: str, user_id: str) -> tuple[ChatMessage, ChatThread] | None:
+        return (
+            self.db.query(ChatMessage, ChatThread)
+            .join(ChatThread, ChatMessage.thread_id == ChatThread.id)
+            .filter(ChatMessage.id == message_id, ChatThread.user_id == user_id)
+            .one_or_none()
+        )
+
     def list_for_thread(self, thread_id: str, limit: int = 200) -> list[ChatMessage]:
         return list(
             self.db.query(ChatMessage)

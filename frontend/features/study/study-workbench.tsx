@@ -39,6 +39,11 @@ const defaultFormState: MaterialFormState = {
   topicHint: ""
 };
 
+function getDraftThreadId(draft: DistillDraft): string | null {
+  const threadId = draft.structure_json.thread_id;
+  return typeof threadId === "string" ? threadId : null;
+}
+
 export function StudyWorkbench() {
   const queryClient = useQueryClient();
   const { messages, formatDateTime } = useLocale();
@@ -67,14 +72,6 @@ export function StudyWorkbench() {
     [materialsQuery.data, selectedMaterialId]
   );
 
-  const selectedMaterialDrafts = useMemo(
-    () =>
-      draftsQuery.data?.filter(
-        (draft) => draft.source_type === "material" && draft.source_ref_id === selectedMaterial?.id
-      ) ?? [],
-    [draftsQuery.data, selectedMaterial?.id]
-  );
-
   const chunksQuery = useQuery({
     queryKey: studyQueryKeys.materialChunks(selectedMaterial?.id),
     queryFn: () => apiGet<MaterialChunk[]>(`/materials/${selectedMaterial?.id}/chunks`),
@@ -94,6 +91,29 @@ export function StudyWorkbench() {
     queryFn: () => apiGet<ChatMessage[]>(`/chat/threads/${effectiveThreadId}/messages`),
     enabled: Boolean(effectiveThreadId)
   });
+
+  const visibleDrafts = useMemo(() => {
+    const messageIds = new Set((messagesQuery.data ?? []).map((message) => message.id));
+    return (
+      draftsQuery.data?.filter((draft) => {
+        if (draft.source_type === "material") {
+          return draft.source_ref_id === selectedMaterial?.id;
+        }
+        if (draft.source_type !== "chat_message") {
+          return false;
+        }
+        return messageIds.has(draft.source_ref_id) || getDraftThreadId(draft) === effectiveThreadId;
+      }) ?? []
+    );
+  }, [draftsQuery.data, effectiveThreadId, messagesQuery.data, selectedMaterial?.id]);
+
+  const savedAnswerMessageIds = useMemo(
+    () =>
+      visibleDrafts
+        .filter((draft) => draft.source_type === "chat_message")
+        .map((draft) => draft.source_ref_id),
+    [visibleDrafts]
+  );
 
   const createMaterialMutation = useMutation({
     mutationFn: (payload: MaterialFormState) =>
@@ -174,6 +194,17 @@ export function StudyWorkbench() {
         queryClient.invalidateQueries({ queryKey: studyQueryKeys.chatThreads(result.materialId) }),
         queryClient.invalidateQueries({ queryKey: studyQueryKeys.chatMessages(result.response.thread.id) })
       ]);
+    },
+    onError: (error: Error) => {
+      setFeedbackMessage(error.message);
+    }
+  });
+
+  const saveAnswerDraftMutation = useMutation({
+    mutationFn: (messageId: string) => apiPost<DistillDraft>(`/chat/messages/${messageId}/draft`),
+    onSuccess: async () => {
+      setFeedbackMessage(copy.answerDraftSaved);
+      await queryClient.invalidateQueries({ queryKey: studyQueryKeys.drafts() });
     },
     onError: (error: Error) => {
       setFeedbackMessage(error.message);
@@ -319,7 +350,7 @@ export function StudyWorkbench() {
             <summary>
               {copy.draftsTitle}
               <span>
-                {selectedMaterialDrafts.length} {copy.draftCount}
+                {visibleDrafts.length} {copy.draftCount}
               </span>
             </summary>
             <div className="disclosure-body">
@@ -329,7 +360,7 @@ export function StudyWorkbench() {
                   <h3>{copy.draftsTitle}</h3>
                 </div>
                 <span className="pill">
-                  {selectedMaterialDrafts.length} {copy.draftCount}
+                  {visibleDrafts.length} {copy.draftCount}
                 </span>
               </div>
 
@@ -337,7 +368,7 @@ export function StudyWorkbench() {
                 {!selectedMaterial ? (
                   <p className="muted">{copy.draftsEmptyHint}</p>
                 ) : null}
-                {selectedMaterialDrafts.map((draft) => (
+                {visibleDrafts.map((draft) => (
                   <article key={draft.id} className="detail-panel">
                     <div className="draft-header">
                       <div>
@@ -372,7 +403,7 @@ export function StudyWorkbench() {
                     </div>
                   </article>
                 ))}
-                {selectedMaterial && !selectedMaterialDrafts.length ? (
+                {selectedMaterial && !visibleDrafts.length ? (
                   <p className="muted">{copy.noDrafts}</p>
                 ) : null}
               </div>
@@ -437,6 +468,14 @@ export function StudyWorkbench() {
         isLoadingMessages={threadsQuery.isLoading || messagesQuery.isLoading}
         messages={messagesQuery.data ?? []}
         formatTime={formatDateTime}
+        onSaveAnswer={(messageId) => {
+          setFeedbackMessage(null);
+          saveAnswerDraftMutation.mutate(messageId);
+        }}
+        savingAnswerMessageId={
+          saveAnswerDraftMutation.isPending ? saveAnswerDraftMutation.variables ?? null : null
+        }
+        savedAnswerMessageIds={savedAnswerMessageIds}
       />
     </section>
   );

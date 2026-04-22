@@ -55,6 +55,7 @@ The repository currently contains the implementation scaffold for the first engi
 - pending distill draft approval flow
 - knowledge base listing and search API/page
 - browser-based study QA for the currently selected material using chunk-level evidence and inline chunk references
+- ability to save useful assistant answers as pending knowledge drafts for approval
 - Codex-style web shell that sends users directly into the study workflow, with Simplified Chinese as the default language and an English toggle
 
 This means the project has moved beyond planning and into implementation, but the main product workflows are still being built.
@@ -69,12 +70,14 @@ The browser-based MVP can now demonstrate a small but real loop:
 4. approve the draft into the knowledge base
 5. browse the result in the `Knowledge` page
 6. ask a question against the currently selected study material in the `Study` page
+7. save a useful assistant answer as a pending draft, then approve it into the knowledge base
 
 Current study QA boundary:
 
 - selected material only
 - chunk-level evidence selection
 - inline chunk references on assistant messages
+- saved answers go through the same human approval flow before entering the knowledge base
 - no SSE, no cross-material retrieval, and no formal citations table yet
 
 ## Planned V1 capabilities
@@ -194,7 +197,7 @@ Already in place:
 - workflow run models
 - settings and workflow run endpoints
 - materials endpoints and ingest service skeleton
-- browser-based ingest, draft approval, knowledge browsing, and selected-material study QA
+- browser-based ingest, draft approval, knowledge browsing, selected-material study QA, and answer-to-draft saving
 
 Next priorities:
 

@@ -9,6 +9,12 @@ from app.api.deps import get_current_or_default_user_id
 from app.db.session import get_db
 from app.repos.chat import ChatMessageRepository, ChatThreadRepository
 from app.schemas.chat import ChatMessageRead, ChatThreadRead, StudyQaAskRequest, StudyQaAskResponse
+from app.schemas.drafts import DistillDraftRead
+from app.services.chat_draft import (
+    ChatDraftInvalidMessageError,
+    ChatDraftNotFoundError,
+    ChatDraftService,
+)
 from app.services.study_qa import StudyQaService
 
 logger = logging.getLogger(__name__)
@@ -65,3 +71,22 @@ def ask_question(
         assistant_message=ChatMessageRead.model_validate(result.assistant_message),
         workflow_run_id=result.workflow_run.id,
     )
+
+
+@router.post("/messages/{message_id}/draft", response_model=DistillDraftRead)
+def save_answer_as_draft(
+    message_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_or_default_user_id),
+) -> DistillDraftRead:
+    try:
+        draft = ChatDraftService(db).create_from_message(user_id=user_id, message_id=message_id)
+    except ChatDraftNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ChatDraftInvalidMessageError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("chat_answer_draft_failed message_id=%s", message_id)
+        raise HTTPException(status_code=500, detail="Saving answer as draft failed") from exc
+
+    return DistillDraftRead.model_validate(draft)

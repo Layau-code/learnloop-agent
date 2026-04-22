@@ -927,6 +927,32 @@ button {
   font-weight: 700;
 }
 
+.message-actions {
+  display: flex;
+  margin-top: 10px;
+}
+
+.message-action {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-soft);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 4px 0;
+}
+
+.message-action:hover {
+  color: var(--text);
+}
+
+.message-action:disabled {
+  color: var(--text-soft);
+  cursor: default;
+  opacity: 0.72;
+}
+
 .study-thread-page .composer {
   position: sticky;
   bottom: 18px;
