@@ -27,34 +27,38 @@ export function AppShell({ children }: AppShellProps) {
         {app.skipToContent}
       </a>
       <aside className="app-sidebar">
-        <div className="sidebar-top">
-          <Link href="/study" className="brand-mark" aria-label={app.title}>
-            {app.brand}
-          </Link>
+        <div className="app-sidebar-frame">
+          <div className="sidebar-top">
+            <Link href="/study" className="brand-mark" aria-label={app.title}>
+              <span className="brand-dot" />
+              <span>{app.brand}</span>
+            </Link>
 
-          <nav className="nav primary-nav" aria-label={app.navigation}>
-            {primaryItems.map((item) => {
-              const isActive = pathname === item.href;
-              const label = app.nav[item.key];
-              return (
-                <Link key={item.href} href={item.href} className={isActive ? "is-active" : undefined}>
-                  <span>{label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+            <nav className="nav primary-nav" aria-label={app.navigation}>
+              {primaryItems.map((item) => {
+                const isActive = pathname === item.href;
+                const label = app.nav[item.key];
+                return (
+                  <Link key={item.href} href={item.href} className={isActive ? "is-active" : undefined}>
+                    <span className="nav-link-mark" />
+                    <span className="nav-link-copy">{label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
 
-        <div className="sidebar-actions">
-          <details className="menu-popover">
-            <summary>{app.language}</summary>
-            <div className="menu-panel">
-              <LocaleSwitcher locale={locale} onSelect={setLocale} />
-            </div>
-          </details>
-          <Link href="/settings" className="quiet-link">
-            {app.nav.settings}
-          </Link>
+          <div className="sidebar-actions">
+            <details className="menu-popover">
+              <summary>{app.language}</summary>
+              <div className="menu-panel">
+                <LocaleSwitcher locale={locale} onSelect={setLocale} />
+              </div>
+            </details>
+            <Link href="/settings" className="quiet-link">
+              {app.nav.settings}
+            </Link>
+          </div>
         </div>
       </aside>
       <main id="main-content" className="main">

@@ -56,7 +56,7 @@ The repository currently contains the implementation scaffold for the first engi
 - knowledge base listing and search API/page
 - browser-based study QA for the currently selected material using chunk-level evidence and inline chunk references
 - ability to save useful assistant answers as pending knowledge drafts for approval
-- Codex-style web shell that sends users directly into the study workflow, with Simplified Chinese as the default language and an English toggle
+- Codex-style web shell that sends users directly into the study workflow, with a compact editor-style layout: stable sidebar, central conversation workspace, and right-side study context rail
 
 This means the project has moved beyond planning and into implementation, but the main product workflows are still being built.
 

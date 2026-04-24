@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormEvent, useMemo, useState } from "react";
 
 import { apiGet, apiPost } from "@/lib/api";
-import { renderMarkdownPreview } from "@/lib/format";
 import { useLocale } from "@/lib/i18n/provider";
 import { appQueryKeys } from "@/lib/query-keys";
 import type {
@@ -19,6 +18,7 @@ import type {
 } from "@/lib/types";
 
 import { studyQueryKeys } from "./query-keys";
+import { StudyContextRail } from "./study-context-rail";
 import { StudyQaPanel } from "./study-qa-panel";
 
 type SourceType = "note" | "url";
@@ -228,254 +228,75 @@ export function StudyWorkbench() {
 
   return (
     <section className="study-thread-page">
-      <header className="thread-page-header">
-        <div>
-          <h2>{selectedMaterial?.title ?? copy.title}</h2>
-          <p>{selectedMaterial?.topic_hint || copy.lede}</p>
-        </div>
+      <div className="study-editor-main">
+        <header className="study-workspace-header">
+          <div className="study-workspace-copy">
+            <p className="card-label">{copy.qaLabel}</p>
+            <h2>{selectedMaterial?.title ?? copy.title}</h2>
+            <p>{selectedMaterial?.topic_hint || copy.lede}</p>
+          </div>
 
-        <div className="thread-page-actions">
-          <details className="toolbar-menu">
-            <summary>
-              {copy.materialsTitle}
-              <span>{materialsQuery.data?.length ?? 0}</span>
-            </summary>
-            <div className="toolbar-panel">
-              <div className="stack-list">
-                {materialsQuery.isLoading ? <p className="muted">{copy.loadingMaterials}</p> : null}
-                {materialsQuery.data?.map((material) => (
-                  <button
-                    key={material.id}
-                    type="button"
-                    className={`list-card ${selectedMaterial?.id === material.id ? "is-active" : ""}`}
-                    onClick={() => {
-                      setSelectedMaterialId(material.id);
-                      setActiveThreadId(null);
-                      setQuestion("");
-                    }}
-                  >
-                    <strong>{material.title}</strong>
-                    <span>{material.topic_hint || copy.general}</span>
-                  </button>
-                ))}
-                {!materialsQuery.isLoading && !materialsQuery.data?.length ? (
-                  <p className="muted">{copy.noMaterials}</p>
-                ) : null}
-              </div>
-            </div>
-          </details>
+          <div className="study-workspace-meta">
+            <span className="pill subtle">
+              {effectiveThreadId ? copy.threadReady : selectedMaterial ? copy.qaTitle : copy.materialsTitle}
+            </span>
+            <span className="pill subtle">
+              {(messagesQuery.data ?? []).length} {copy.itemCount}
+            </span>
+            {selectedMaterial?.language ? (
+              <span className="pill subtle">{selectedMaterial.language}</span>
+            ) : null}
+          </div>
+        </header>
 
-          <details className="toolbar-menu">
-            <summary>{copy.createTitle}</summary>
-            <div className="toolbar-panel wide">
-              <form className="stack-form" onSubmit={handleSubmit}>
-                <label className="field">
-                  <span>{copy.titleField}</span>
-                  <input
-                    required
-                    value={form.title}
-                    onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-                    placeholder={copy.titlePlaceholder}
-                  />
-                </label>
+        {feedbackMessage ? (
+          <div className="workspace-feedback" role="status">
+            {feedbackMessage}
+          </div>
+        ) : null}
 
-                <label className="field">
-                  <span>{copy.sourceType}</span>
-                  <select
-                    value={form.sourceType}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        sourceType: event.target.value as SourceType,
-                        sourceUri: "",
-                        rawText: ""
-                      }))
-                    }
-                  >
-                    <option value="note">{copy.note}</option>
-                    <option value="url">{copy.url}</option>
-                  </select>
-                </label>
+        <StudyQaPanel
+          selectedMaterial={selectedMaterial}
+          question={question}
+          onQuestionChange={setQuestion}
+          onSubmit={handleAskQuestion}
+          isSubmitting={askQuestionMutation.isPending}
+          isLoadingMessages={threadsQuery.isLoading || messagesQuery.isLoading}
+          messages={messagesQuery.data ?? []}
+          formatTime={formatDateTime}
+          onSaveAnswer={(messageId) => {
+            setFeedbackMessage(null);
+            saveAnswerDraftMutation.mutate(messageId);
+          }}
+          savingAnswerMessageId={
+            saveAnswerDraftMutation.isPending ? saveAnswerDraftMutation.variables ?? null : null
+          }
+          savedAnswerMessageIds={savedAnswerMessageIds}
+        />
+      </div>
 
-                {form.sourceType === "note" ? (
-                  <label className="field">
-                    <span>{copy.body}</span>
-                    <textarea
-                      required
-                      rows={8}
-                      value={form.rawText}
-                      onChange={(event) =>
-                        setForm((current) => ({ ...current, rawText: event.target.value }))
-                      }
-                      placeholder={copy.bodyPlaceholder}
-                    />
-                  </label>
-                ) : (
-                  <label className="field">
-                    <span>{copy.urlField}</span>
-                    <input
-                      required
-                      type="url"
-                      value={form.sourceUri}
-                      onChange={(event) =>
-                        setForm((current) => ({ ...current, sourceUri: event.target.value }))
-                      }
-                      placeholder={copy.urlPlaceholder}
-                    />
-                  </label>
-                )}
-
-                <label className="field">
-                  <span>{copy.topicHint}</span>
-                  <input
-                    value={form.topicHint}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, topicHint: event.target.value }))
-                    }
-                    placeholder={copy.topicHintPlaceholder}
-                  />
-                </label>
-
-                <div className="action-row">
-                  <button className="button-primary" type="submit" disabled={createMaterialMutation.isPending}>
-                    {createMaterialMutation.isPending ? copy.importing : copy.importAction}
-                  </button>
-                  {feedbackMessage ? <p className="status-text">{feedbackMessage}</p> : null}
-                </div>
-              </form>
-            </div>
-          </details>
-
-          <details className="toolbar-menu">
-            <summary>
-              {copy.draftsTitle}
-              <span>
-                {visibleDrafts.length} {copy.draftCount}
-              </span>
-            </summary>
-            <div className="disclosure-body">
-              <div className="section-heading">
-                <div>
-                  <p className="card-label">{copy.draftsLabel}</p>
-                  <h3>{copy.draftsTitle}</h3>
-                </div>
-                <span className="pill">
-                  {visibleDrafts.length} {copy.draftCount}
-                </span>
-              </div>
-
-              <div className="stack-list">
-                {!selectedMaterial ? (
-                  <p className="muted">{copy.draftsEmptyHint}</p>
-                ) : null}
-                {visibleDrafts.map((draft) => (
-                  <article key={draft.id} className="detail-panel">
-                    <div className="draft-header">
-                      <div>
-                        <h4>{draft.title}</h4>
-                        <p className="muted">
-                          {draft.status} · {formatDateTime(draft.updated_at)}
-                        </p>
-                      </div>
-                      <div className="action-row compact">
-                        <button
-                          type="button"
-                          className="button-primary"
-                          disabled={approveDraftMutation.isPending || draft.status !== "pending"}
-                          onClick={() => approveDraftMutation.mutate(draft.id)}
-                        >
-                          {copy.approve}
-                        </button>
-                        <button
-                          type="button"
-                          className="button-secondary"
-                          disabled={rejectDraftMutation.isPending || draft.status !== "pending"}
-                          onClick={() => rejectDraftMutation.mutate(draft.id)}
-                        >
-                          {copy.reject}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="markdown-preview">
-                      {renderMarkdownPreview(draft.content_md).map((line, index) => (
-                        <p key={`${draft.id}-${index}`}>{line}</p>
-                      ))}
-                    </div>
-                  </article>
-                ))}
-                {selectedMaterial && !visibleDrafts.length ? (
-                  <p className="muted">{copy.noDrafts}</p>
-                ) : null}
-              </div>
-            </div>
-          </details>
-
-          <details className="toolbar-menu">
-            <summary>
-              {copy.currentMaterialTitle}
-              {selectedMaterial ? <span>{selectedMaterial.title}</span> : null}
-            </summary>
-            <div className="disclosure-body">
-              <div className="section-heading">
-                <div>
-                  <p className="card-label">{copy.currentMaterialLabel}</p>
-                  <h3>{copy.currentMaterialTitle}</h3>
-                </div>
-                {selectedMaterial ? (
-                  <span className="pill">{selectedMaterial.language || copy.unknownLanguage}</span>
-                ) : null}
-              </div>
-
-              {!selectedMaterial ? (
-                <p className="muted">{copy.currentMaterialEmpty}</p>
-              ) : (
-                <div className="stack-list">
-                  <div className="detail-panel">
-                    <h4>{selectedMaterial.title}</h4>
-                    <p className="muted">
-                      {selectedMaterial.source_type} · {selectedMaterial.parse_status}
-                      {selectedMaterial.parse_error ? ` · ${selectedMaterial.parse_error}` : ""}
-                    </p>
-                    <p>{selectedMaterial.normalized_text || selectedMaterial.raw_text || copy.noBody}</p>
-                  </div>
-
-                  <div className="detail-panel">
-                    <h4>{copy.chunksTitle}</h4>
-                    {chunksQuery.isLoading ? <p className="muted">{copy.loadingChunks}</p> : null}
-                    {chunksQuery.data?.map((chunk) => (
-                      <div key={chunk.id} className="chunk-card">
-                        <span className="pill subtle">#{chunk.chunk_index + 1}</span>
-                        <p>{chunk.content}</p>
-                      </div>
-                    ))}
-                    {!chunksQuery.isLoading && !chunksQuery.data?.length ? (
-                      <p className="muted">{copy.noChunks}</p>
-                    ) : null}
-                  </div>
-                </div>
-              )}
-            </div>
-          </details>
-        </div>
-      </header>
-
-      <StudyQaPanel
+      <StudyContextRail
+        materials={materialsQuery.data ?? []}
         selectedMaterial={selectedMaterial}
-        question={question}
-        onQuestionChange={setQuestion}
-        onSubmit={handleAskQuestion}
-        isSubmitting={askQuestionMutation.isPending}
-        isLoadingMessages={threadsQuery.isLoading || messagesQuery.isLoading}
-        messages={messagesQuery.data ?? []}
+        isLoadingMaterials={materialsQuery.isLoading}
+        visibleDrafts={visibleDrafts}
+        chunks={chunksQuery.data ?? []}
+        isLoadingChunks={chunksQuery.isLoading}
+        form={form}
+        feedbackMessage={feedbackMessage}
+        isCreatingMaterial={createMaterialMutation.isPending}
+        isApprovingDraft={approveDraftMutation.isPending}
+        isRejectingDraft={rejectDraftMutation.isPending}
         formatTime={formatDateTime}
-        onSaveAnswer={(messageId) => {
-          setFeedbackMessage(null);
-          saveAnswerDraftMutation.mutate(messageId);
+        onFormChange={setForm}
+        onSubmit={handleSubmit}
+        onSelectMaterial={(materialId) => {
+          setSelectedMaterialId(materialId);
+          setActiveThreadId(null);
+          setQuestion("");
         }}
-        savingAnswerMessageId={
-          saveAnswerDraftMutation.isPending ? saveAnswerDraftMutation.variables ?? null : null
-        }
-        savedAnswerMessageIds={savedAnswerMessageIds}
+        onApproveDraft={(draftId) => approveDraftMutation.mutate(draftId)}
+        onRejectDraft={(draftId) => rejectDraftMutation.mutate(draftId)}
       />
     </section>
   );
