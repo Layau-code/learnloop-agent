@@ -1,124 +1,179 @@
 # LearnLoop Agent
 
-Single-user, local-first learning workflow agent that turns study materials and conversations into a personal knowledge base with context-aware QA, reflection, and adaptive planning.
+一个面向单个学习者、默认本地运行的学习工作流 Agent。
 
-## Why this project
+它的目标不是做一个托管 SaaS，而是把“资料导入 -> 当前资料问答 -> 知识沉淀 -> 复盘与计划”这条链路真正闭环起来，让你学过的内容能持续留下来，而不是只停留在聊天记录里。
 
-Most learning tools help you collect content or chat with a model, but they do not reliably close the loop between:
+## 项目定位
 
-- material ingestion
-- context-aware questioning
-- knowledge distillation
-- daily reflection
-- adaptive planning
+- 单用户：默认只服务一个人，不做多租户平台设计
+- 本地优先：推荐直接 clone 到本机，用 Docker 启动
+- 自带模型接口：你自己配置大模型 API，而不是依赖公共服务
+- 浏览器产品：当前形态是网页版，不是 App
+- 中文默认：前端默认简体中文，可切换英文
 
-LearnLoop Agent is designed to make that loop explicit and durable.
+## 当前已经能用什么
 
-This project is intended to be cloned and run locally by one user at a time. It is not being positioned as a hosted multi-user SaaS.
+当前仓库已经不只是方案文档，而是有一条可以运行的最小网页闭环：
 
-## Core direction
+1. 在 `Study` 页面录入资料
+2. 导入后生成待审批草稿
+3. 审批草稿并写入知识库
+4. 在 `Knowledge` 页面查看知识条目
+5. 基于当前选中的资料发起问答
+6. 将有价值的回答再次保存为待审批草稿
 
-The current version is scoped around a single-user, local-first learning workflow:
+当前前端界面已经收敛为编辑器式布局：
 
-1. ingest study materials
-2. parse and structure them
-3. ask questions with current-study context
-4. distill useful outputs into reusable knowledge
-5. generate daily reflection and next-step plans
+- 左侧：稳定导航
+- 中间：主对话工作区
+- 右侧：资料、草稿、chunk 等学习上下文
 
-Product assumptions in the current MVP:
+## 当前版本边界
 
-- one primary user profile
-- local Docker deployment
-- bring-your-own model API key
-- browser UI defaults to Simplified Chinese, with an English toggle available in the UI and persisted in the current browser
+当前 Study QA 还是 MVP，边界比较明确：
 
-Implementation caveat:
+- 仅支持“当前选中资料”范围内的问答
+- 当前引用基于 chunk 级证据片段
+- assistant 回答可以保存成待审批草稿
+- 草稿仍然需要人工审批后才会进入知识库
 
-- the current runtime uses a single default profile and no auth layer yet
+当前还没有：
 
-## What is implemented today
+- SSE 流式输出
+- 跨资料检索
+- 正式 citations 表写入闭环
+- 完整的复盘与学习计划页面闭环
+- 多模态文件解析完整支持
 
-The repository currently contains the implementation scaffold for the first engineering milestone:
+## 适合谁
 
-- monorepo setup
-- Docker Compose stack
-- FastAPI backend shell
-- Next.js frontend shell
-- Alembic migration baseline
-- core SQLAlchemy models
-- repository layer
-- workflow run infrastructure
-- model adapter skeleton
-- observability baseline
-- browser-based study workbench for manual notes and URL ingestion
-- pending distill draft approval flow
-- knowledge base listing and search API/page
-- browser-based study QA for the currently selected material using chunk-level evidence and inline chunk references
-- ability to save useful assistant answers as pending knowledge drafts for approval
-- Codex-style web shell that sends users directly into the study workflow, with a compact editor-style layout: stable sidebar, central conversation workspace, and right-side study context rail
+这个项目更适合下面这类人：
 
-This means the project has moved beyond planning and into implementation, but the main product workflows are still being built.
+- 希望搭一个自己的学习知识沉淀系统
+- 想做一个本地优先、可开源分享的 Agent 项目
+- 想通过一个真实项目学习 Agent 工程设计
+- 未来希望找 Agent / AI 应用 / 智能体相关实习或工作
 
-## Current web flow
+如果你想要的是“注册即用的在线 SaaS”，这个项目不是那个方向。
 
-The browser-based MVP can now demonstrate a small but real loop:
+## 快速开始
 
-1. open the product and land directly in the `Study` workflow
-2. create a study material from the `Study` page
-3. run ingest and generate a distill draft
-4. approve the draft into the knowledge base
-5. browse the result in the `Knowledge` page
-6. ask a question against the currently selected study material in the `Study` page
-7. save a useful assistant answer as a pending draft, then approve it into the knowledge base
+### 环境要求
 
-Current study QA boundary:
+- Docker
+- Docker Compose
+- 可选：`OpenAI API Key` 或其他兼容模型接口
 
-- selected material only
-- chunk-level evidence selection
-- inline chunk references on assistant messages
-- saved answers go through the same human approval flow before entering the knowledge base
-- no SSE, no cross-material retrieval, and no formal citations table yet
+### 启动方式
 
-## Planned V1 capabilities
+推荐使用方式：
 
-- material ingestion for `Markdown / TXT / PDF / URL / manual notes`
-- searchable knowledge base
-- context-aware study QA with stronger retrieval and richer citations
-- distill draft approval and knowledge write-back
-- daily reflection
-- daily / weekly learning plan generation
-- workflow status, checkpoints, and event logging
+1. clone 仓库到本地
+2. 复制环境变量模板
+3. 配置自己的模型 API
+4. 用 Docker 启动整套服务
 
-## Current architecture
+```bash
+cp .env.example .env
+docker compose up --build
+```
 
-### Backend
+如需模型能力，可在 `.env` 中配置：
 
-- `FastAPI` for REST endpoints and planned SSE support
-- `SQLAlchemy + Alembic` for persistence and migrations
-- `PostgreSQL + pgvector` for relational data and semantic retrieval foundations
-- `Celery + Redis` for background task execution
-- workflow-oriented runtime for long-running agent tasks
+```bash
+OPENAI_API_KEY=your_key
+```
 
-### Frontend
+如果不配置模型 Key：
 
-- `Next.js + TypeScript`
-- app shell for:
-  - knowledge base
-  - study workbench
-  - reflection and planning
-  - settings
-- a lightweight client-side locale layer for Simplified Chinese and English
-- a Codex-inspired workspace layout with a compact sidebar, context rail, and central study conversation
+- 当前 MVP 仍然可以启动
+- 资料导入、草稿流、基础问答主链路仍可运行
+- 问答和草稿生成会退回到本地 fallback 行为
 
-### Agent layer
+### 默认地址
 
-- workflow-driven architecture
-- explicit run state
-- checkpoints and resumability
-- model access through a dedicated adapter layer
+- Web：`http://localhost:3000`
+- API：`http://localhost:8000`
+- API Docs：`http://localhost:8000/docs`
 
-## Repository structure
+## 当前主要能力
+
+### 1. 资料导入
+
+当前已支持：
+
+- 手动笔记
+- URL 录入
+
+导入后会走最小处理链路：
+
+- 资料保存
+- 正文规范化
+- chunk 切分
+- 草稿生成
+
+### 2. 草稿审批
+
+当前已支持：
+
+- 导入资料后生成待审批草稿
+- 审批后写入知识库
+- 拒绝草稿
+- 将问答回答再次保存为草稿并复用同一审批流
+
+### 3. 学习问答
+
+当前已支持：
+
+- 基于当前资料提问
+- 复用当前资料线程
+- 在回答中展示 chunk 级引用提示
+- 将回答保存为待审批知识草稿
+
+### 4. 知识库浏览
+
+当前已支持：
+
+- 知识条目列表
+- 关键词搜索
+- 正文预览
+
+## 技术架构
+
+### 前端
+
+- `Next.js`
+- `TypeScript`
+- `TanStack Query`
+
+当前前端设计原则：
+
+- 结构优先，不堆无效入口
+- 默认中文
+- 页面形态对标编辑器 / 工作台，而不是营销站
+- 优先暴露主功能，其余信息收进上下文区域
+
+### 后端
+
+- `FastAPI`
+- `SQLAlchemy`
+- `Alembic`
+
+### 存储与异步
+
+- `PostgreSQL`
+- `pgvector`
+- `Redis`
+- `Celery`
+
+### Agent / Workflow 层
+
+- 面向工作流编排的运行时
+- 显式 `run / checkpoint / event` 状态
+- 模型调用通过独立 adapter 层接入
+
+## 仓库结构
 
 ```text
 backend/
@@ -141,93 +196,55 @@ frontend/
   lib/
 ```
 
-## Quick start
+## 当前开发状态
 
-### Prerequisites
+当前项目已经进入“可运行 MVP 持续迭代”阶段，不再只是文档设计。
 
-- Docker
-- Docker Compose
-- Optional OpenAI API key
+已完成：
 
-### Start locally
+- Monorepo 基础结构
+- Docker Compose 启动链路
+- FastAPI / Next.js 基础壳
+- 核心数据模型
+- repo 层
+- workflow run 基础设施
+- 资料导入最小链路
+- 草稿审批写回链路
+- 知识库列表与搜索
+- 当前资料问答
+- 回答转草稿
+- 编辑器式网页工作台布局
 
-The recommended way to use this project is:
+接下来更值得优先做的事情：
 
-1. clone the repository locally
-2. configure your own model API key if needed
-3. run the stack on your machine
+1. 更完整的资料导入能力：文件上传、PDF 解析
+2. 更强的学习问答：更好的检索、更多引用信息、多轮体验
+3. 每日复盘与学习计划闭环
+4. 更完整的评测、测试和可观测性补齐
 
-This repo is not designed around a shared hosted deployment model.
-
-4. Copy the environment template:
-
-```bash
-cp .env.example .env
-```
-
-5. Optionally set `OPENAI_API_KEY` in `.env`
-
-   If you keep the default local ports, the web frontend and API will already align through:
-
-   - `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1`
-   - `CORS_ORIGINS=http://localhost:3000`
-
-   Without an OpenAI key, the current MVP still runs with deterministic fallback behavior for study QA and draft generation, while model-backed generation and embeddings stay disabled.
-
-6. Start the stack:
-
-```bash
-docker compose up --build
-```
-
-### Default services
-
-- Web: `http://localhost:3000`
-- API: `http://localhost:8000`
-- API docs: `http://localhost:8000/docs`
-
-## Development status
-
-The current implementation is still scaffold-first.
-
-Already in place:
-
-- repository structure
-- database schema baseline
-- workflow run models
-- settings and workflow run endpoints
-- materials endpoints and ingest service skeleton
-- browser-based ingest, draft approval, knowledge browsing, selected-material study QA, and answer-to-draft saving
-
-Next priorities:
-
-1. richer material ingestion support for files and PDF parsing
-2. richer study QA with stronger retrieval, richer citations, and multi-turn UX
-3. reflection and planning workflow
-4. improved approval UX and retrieval quality
-
-## Roadmap
+## 路线图
 
 ### Phase 1
 
-- material ingestion
-- knowledge distillation
-- study QA
-- reflection and planning
+- 资料导入
+- 知识沉淀
+- 学习问答
+- 复盘与计划
 
 ### Phase 2
 
-- stronger answer quality and evaluation
-- better deduplication and retrieval
-- improved approval and write-back UX
+- 更强的回答质量
+- 更好的去重与检索
+- 更完整的审批体验
 
 ### Phase 3
 
-- interview preparation workflows
-- richer review cards and mastery tracking
-- broader multimodal extensions
+- 面试题准备工作流
+- 更丰富的复习卡片与掌握度跟踪
+- 更完整的多模态扩展
 
-## Notes
+## 使用说明补充
 
-- This repository intentionally tracks code and lightweight public project information only.
-- Local development planning documents are kept out of version control.
+- 这个仓库默认只提交代码和轻量公开文档
+- 本地开发执行包、私有规划文档不会推送到仓库
+- 如果代码事实和旧文档冲突，以当前代码实现为准
